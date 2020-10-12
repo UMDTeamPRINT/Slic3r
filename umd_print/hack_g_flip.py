@@ -2,10 +2,10 @@ import re
 import argparse
 
 folder= r"/home/froppy/Slic3r/test_models/test_gcode/{}"
-in_file = folder.format('fill1.gcode')
-out_file = folder.format('fill1-flipped.gcode')
+in_file = folder.format('fill2-fixed.gcode')
+out_file = folder.format('fill2-fixed-flipped.gcode')
 
-offset_z = 1 #mm
+offset_z = 4 #mm
 
 if __name__ == '__main__':
     # parser = argparse.ArgumentParser()
@@ -57,11 +57,14 @@ if __name__ == '__main__':
             new_layer = []
             for line in layer:
                 m = re.search(pat, line)
-                if m and 'Move up' not in line: # TODO find some way to fix the movement commands
-                    old_z = float(m.group(1))
-                    new_z = max_z - old_z + offset_z
-                    new_line = pat.sub(r'Z{:.3f}'.format(new_z), line)  # Replace with new Z
-                    new_layer.append(new_line)
+                if m: 
+                    if 'Move up' in line or 'Move down' in line:
+                        pass # TODO maybe find something better than deleting them lol
+                    else:
+                        old_z = float(m.group(1))
+                        new_z = max_z - old_z + offset_z
+                        new_line = pat.sub(r'Z{:.3f}'.format(new_z), line)  # Replace with new Z
+                        new_layer.append(new_line)
                 else:
                     new_layer.append(line)
             new_print_layers.extend(new_layer)
