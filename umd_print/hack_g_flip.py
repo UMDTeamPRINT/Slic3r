@@ -11,16 +11,16 @@ if __name__ == '__main__':
     # parser.add_argument('')
 
 
-    # Layer 0 = before
-    # Layer length(layers)-1 = end
+    # Layer 0 = start code
+    # Layer length(layers)-1 = end code
     layers = []
 
     with open(in_file, 'r') as f:
         lines = f.readlines()
-        layer = 0
         current_layer = []
-        layer_regex = re.compile(r'layer \((\d+)\)')
+        layer_regex = re.compile(r'layer \((\d+)\)')  # This is what verbose GCode prints out in Slic3r
 
+        # Parse layers
         for line in lines:
             layer_num = re.search(layer_regex,line)
             if layer_num or 'M107' in line:  # M107 is fan off (represents EOF)
@@ -34,7 +34,7 @@ if __name__ == '__main__':
         # Begin with start up code
         new_layers.extend(layers[0])
 
-        # Flip code
+        # Flip print code
         print_layers = layers[1:-1]
         print_layers = [x for x in reversed(print_layers)] # Reverses layer order
 
@@ -68,6 +68,7 @@ if __name__ == '__main__':
         # End with end code
         new_layers.extend(layers[len(layers)-1])
 
+        # Write to file
         file = open(out_file, 'w')
         file.writelines(new_layers)
         file.close()
